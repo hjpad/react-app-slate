@@ -17,7 +17,17 @@ const App = () => {
 
   return (
     <Slate editor={editor} value={initialValue}>
-      <Editable />
+      <Editable
+        // Define a new handler which prints the key that was pressed.
+        onKeyDown={(event) => {
+          if (event.key === '&') {
+            // Prevent the ampersand character from being inserted.
+            event.preventDefault()
+            // Execute the `insertText` method when the event occurs.
+            editor.insertText('and')
+          }
+        }}
+      />
     </Slate>
   );
 };
