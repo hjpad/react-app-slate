@@ -3,9 +3,9 @@
 
 import React, { useState, useCallback } from 'react';
 
-import { createEditor } from 'slate';
+import { createEditor, Editor, Transforms, Text } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
-import { Editor, Transforms, Text } from 'slate';
+// import { Editor, Transforms, Text } from 'slate';
 
 const initialValue = [
   {
