@@ -7,12 +7,7 @@ import { createEditor, Editor, Transforms, Text, Node } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 // import { Editor, Transforms, Text } from 'slate';
 
-const initialValue0 = [
-  {
-    type: 'paragraph',
-    children: [{ text: 'A line of text in a paragraph.' }],
-  },
-];
+const initialValue0 = "A line of text in a paragraph."
 
 // Define our own custom set of helpers.
 const CustomEditor = {
@@ -65,6 +60,7 @@ const serialize = (value) => {
 
 // Define a deserializing function that takes a string and returns a value.
 const deserialize = (string) => {
+  if (!string) string = initialValue0;
   // Return a value array of children derived by splitting the string.
   return string.split('\n').map((line) => {
     return {
