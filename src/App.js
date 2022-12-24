@@ -5,7 +5,7 @@ import React, { useState, useCallback } from 'react';
 
 import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
-import { Editor, Transforms } from 'slate';
+import { Editor, Transforms, Text } from 'slate';
 
 const initialValue = [
   {
@@ -26,29 +26,65 @@ const App = () => {
     }
   }, []);
 
+  // Define a leaf rendering function that is memoized with `useCallback`.
+  const renderLeaf = useCallback((props) => {
+    return <Leaf {...props} />;
+  }, []);
+
   return (
     <Slate editor={editor} value={initialValue}>
       <Editable
         renderElement={renderElement}
+        // Pass in the `renderLeaf` function.
+        renderLeaf={renderLeaf}
         onKeyDown={(event) => {
-          if (event.key === '`' && event.ctrlKey) {
-            // Prevent the "`" from being inserted
-            event.preventDefault();
-            // Determine whether any of the currently selected blocks are code blocks.
-            const [match] = Editor.nodes(editor, {
-              match: (n) => n.type === 'code',
-            });
-            // Toggle the block type depending on whether there's already a match.
-            Transforms.setNodes(
-              editor,
-              { type: match ? 'paragraph' : 'code' },
-              { match: (n) => Editor.isBlock(editor, n) }
-            );
+          if (!event.ctrlKey) {
+            return;
+          }
+
+          switch (event.key) {
+            case '`': {
+              event.preventDefault();
+              const [match] = Editor.nodes(editor, {
+                match: (n) => n.type === 'code',
+              });
+              Transforms.setNodes(
+                editor,
+                { type: match ? null : 'code' },
+                { match: (n) => Editor.isBlock(editor, n) }
+              );
+              break;
+            }
+
+            case 'b': {
+              event.preventDefault();
+              Transforms.setNodes(
+                editor,
+                { bold: true },
+                { match: (n) => Text.isText(n), split: true }
+              );
+              break;
+            }
+
+            case ' ': {
+              console.log('a');
+              event.preventDefault();
+              Transforms.setNodes(
+                editor,
+                { bold: false },
+                { match: (n) => Text.isText(n), split: true }
+              );
+              break;
+            }
           }
         }}
       />
     </Slate>
   );
+};
+
+const DefaultElement = (props) => {
+  return <p {...props.attributes}>{props.children}</p>;
 };
 
 const CodeElement = (props) => {
@@ -59,8 +95,15 @@ const CodeElement = (props) => {
   );
 };
 
-const DefaultElement = (props) => {
-  return <p {...props.attributes}>{props.children}</p>;
+const Leaf = (props) => {
+  return (
+    <span
+      {...props.attributes}
+      style={{ fontWeight: props.leaf.bold ? 'bold' : 'normal' }}
+    >
+      {props.children}
+    </span>
+  );
 };
 
 export default App;
